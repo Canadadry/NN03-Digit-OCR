@@ -1,13 +1,17 @@
-require "Digit"
+package.path = package.path .. ";../../src/?.lua"
 
+require "Digit"
+require "MNISTReader"
 
 function love.load(arg)
+	dataset = MNISTReader("../../data/")
+	labels = dataset:loadLabel(1,300)
 	digits = {}
 	size = 40
-	local count = 0
+	local count = 1
 	for i=1,love.graphics.getWidth(),size do		
 		for j=1,love.graphics.getHeight(),size do
-			table.insert(digits,Digit(count,nil,i,j,size))
+			table.insert(digits,Digit(labels[count],nil,i,j,size))
 			count = count+1
 		end
 	end 

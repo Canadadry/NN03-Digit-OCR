@@ -1,4 +1,3 @@
-package.path = package.path .. ";../../src/?.lua"
 package.path = package.path .. ";../../lib/?.lua"
 require "Class"
 
