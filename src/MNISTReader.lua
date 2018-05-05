@@ -51,20 +51,30 @@ function MNISTReader:fromDataTrain()
 	self.mode = 'datatrain'
 end
 
+function MNISTReader:numberOfElement()
+	file = self.mode == 'dataset' and self.images_file or self.train_images_file
+	file:seek('set',0)
+	local magicNumber     = Decode.uint32(file:read(4))
+	local numberOfElement   = Decode.uint32(file:read(4))
+	return numberOfElement
+end
+
 function MNISTReader:loadImages(start, count)
 	file = self.mode == 'dataset' and self.images_file or self.train_images_file
+	file:seek('set',0)
 	local magicNumber     = Decode.uint32(file:read(4))
 	local numberOfImage   = Decode.uint32(file:read(4))
 	print("image count : ".. numberOfImage)
 	local numberOfRows    = Decode.uint32(file:read(4))
 	local numberOfColumns = Decode.uint32(file:read(4))
-	assert(start+count < numberOfImage,'out of bound')
+	print("last image wanted : " .. (start+count))
+	assert((start+count) < numberOfImage,'out of bound')
 	local header_size_byte = 16; 
-	file:seek('set',header_size_byte+start)
+	file:seek('set',header_size_byte+((start-1)*numberOfRows*numberOfRows))
 	data = file:read(count*numberOfRows*numberOfRows)
 	ret = {}
 	for i=1,count do
-		local sub = data:sub((i-1)*numberOfRows*numberOfRows,(i)*numberOfRows*numberOfRows)
+		local sub = data:sub((i-1)*numberOfRows*numberOfRows,i*numberOfRows*numberOfRows)
 		table.insert(ret,sub)
 	end
 	return ret
@@ -72,12 +82,13 @@ end
 
 function MNISTReader:loadLabel(start, count)
 	file = self.mode == 'dataset' and self.labels_file or self.train_labels_file
+	file:seek('set',0)
 	local magicNumber = Decode.uint32(file:read(4))
 	local numberOfLabel = Decode.uint32(file:read(4))
 	print("label count : ".. numberOfLabel)
 	assert(start+count < numberOfLabel,'out of bound');
 	local header_size_byte = 8; 
-	file:seek('set',header_size_byte+start)
+	file:seek('set',header_size_byte+start-1)
 	data = file:read(count)
 	ret = {}
 	for i=1,count do
