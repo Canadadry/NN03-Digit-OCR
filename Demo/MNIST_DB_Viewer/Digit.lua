@@ -14,5 +14,6 @@ function Digit:init(label,image,x,y,size)
 end
 
 function Digit:draw()
+	if self.image then love.graphics.draw( self.image, self.x, self.y) end
 	love.graphics.print(self.label,self.x,self.y)
 end
