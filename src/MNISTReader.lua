@@ -59,33 +59,38 @@ function MNISTReader:numberOfElement()
 	return numberOfElement
 end
 
-function MNISTReader:loadImages(start, count)
+function MNISTReader:loadImages(start, count,func)
 	file = self.mode == 'dataset' and self.images_file or self.train_images_file
 	file:seek('set',0)
 	local magicNumber     = Decode.uint32(file:read(4))
 	local numberOfImage   = Decode.uint32(file:read(4))
-	print("image count : ".. numberOfImage)
+	assert((start+count) < numberOfImage,'out of bound')
 	local numberOfRows    = Decode.uint32(file:read(4))
 	local numberOfColumns = Decode.uint32(file:read(4))
-	print("last image wanted : " .. (start+count))
-	assert((start+count) < numberOfImage,'out of bound')
+	local chunkSize = numberOfRows*numberOfColumns
 	local header_size_byte = 16; 
-	file:seek('set',header_size_byte+((start-1)*numberOfRows*numberOfRows))
-	data = file:read(count*numberOfRows*numberOfRows)
-	ret = {}
-	for i=1,count do
-		local sub = data:sub((i-1)*numberOfRows*numberOfRows,i*numberOfRows*numberOfRows)
-		table.insert(ret,sub)
-	end
-	return ret
+	file:seek('set',header_size_byte+((start-1)*chunkSize))
+	data = file:read(count*chunkSize)
+	return MNISTReader.splitByChunk(data,chunkSize,func)
+end
+
+function MNISTReader.splitByChunk(text, chunkSize,func)
+    local s = {}
+    for i=1, #text, chunkSize do
+    	local sub = text:sub(i,i+chunkSize - 1)
+    	assert(#sub == chunkSize)
+    	if func then sub = func(sub) end   
+    	assert(#sub == chunkSize)
+    	table.insert(s,sub)
+    end
+    return s
 end
 
 function MNISTReader:loadLabel(start, count)
 	file = self.mode == 'dataset' and self.labels_file or self.train_labels_file
 	file:seek('set',0)
 	local magicNumber = Decode.uint32(file:read(4))
-	local numberOfLabel = Decode.uint32(file:read(4))
-	print("label count : ".. numberOfLabel)
+	local numberOfLabel = Decode.uint32(file:read(4))	
 	assert(start+count < numberOfLabel,'out of bound');
 	local header_size_byte = 8; 
 	file:seek('set',header_size_byte+start-1)
