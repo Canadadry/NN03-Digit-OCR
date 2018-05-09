@@ -108,6 +108,11 @@ do
    
    --// The Load Function
    function table.load( sfile )
+      local file_exists = function (name)
+         local f=io.open(name,"r")
+         if f~=nil then io.close(f) return true else return false end
+      end
+      assert(file_exists(sfile),'cannont open file at '.. sfile)
       local ftables,err = loadfile( sfile )
       if err then return _,err end
       local tables = ftables()
@@ -130,5 +135,7 @@ do
    end
 -- close do
 end
+
+
 
 -- ChillCode

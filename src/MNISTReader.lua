@@ -36,6 +36,32 @@ local       labels_filename = 't10k-labels.idx1-ubyte'
 local train_images_filename = 'train-images.idx3-ubyte'
 local train_labels_filename = 'train-labels.idx1-ubyte'
 
+MNISTReader.label2index = {}
+MNISTReader.label2index[1] = 1
+MNISTReader.label2index[2] = 2
+MNISTReader.label2index[3] = 3
+MNISTReader.label2index[4] = 4
+MNISTReader.label2index[5] = 5
+MNISTReader.label2index[6] = 6
+MNISTReader.label2index[7] = 7
+MNISTReader.label2index[8] = 8
+MNISTReader.label2index[9] = 9
+MNISTReader.label2index[0] = 10
+
+
+MNISTReader.index2label = {}
+MNISTReader.index2label[1 ] = 1
+MNISTReader.index2label[2 ] = 2
+MNISTReader.index2label[3 ] = 3
+MNISTReader.index2label[4 ] = 4
+MNISTReader.index2label[5 ] = 5
+MNISTReader.index2label[6 ] = 6
+MNISTReader.index2label[7 ] = 7
+MNISTReader.index2label[8 ] = 8
+MNISTReader.index2label[9 ] = 9
+MNISTReader.index2label[10] = 0
+
+
 function MNISTReader:init(folder)
 	      self.images_file  = assert(io.open(folder ..       images_filename,'rb'))
 	      self.labels_file  = assert(io.open(folder ..       labels_filename,'rb'))
@@ -101,4 +127,5 @@ function MNISTReader:loadLabel(start, count)
 	end
 	return ret
 end
+
 

@@ -18,31 +18,30 @@ function stringImage2table(str)
 end
 
 dataset = MNISTReader("../data/")
-train_labels = dataset:loadLabel(1,900)
-train_images = dataset:loadImages(1,900)
-
-test_labels = dataset:loadLabel(1,900)
-test_images = dataset:loadImages(1,900,stringImage2table)
 
 output = {}
-for i=0,9 do
+for num=0,9 do
 	local out_vec= {}
-	for j=1,10 do
-		out_vec[j] = 0
+	for i=1,10 do
+		out_vec[i] = 0
 	end
-	out_vec[i+1] = 1
-	output[i] = out_vec
+	out_vec[MNISTReader.label2index[num]] = 1
+	output[num] = out_vec
 end
-
-print(type(test_images))
-print(type(test_images[1]))
-print(#test_images[1])
-print(type(test_images[1][1]))
 
 nn = NeuralNetwork(784,1000,10)
 
-local count = 0
-for i=1,100 do
-	count = count+1
-	nn:train(test_images[i],output[test_labels[i]])
+local chunckSize = 300
+local numberOfChunck = 1
+for i=1,numberOfChunck do		
+	local start_ = (i-1)*chunckSize + 1
+	local end_   = start_ + chunckSize - 1
+
+	for j=1,chunckSize do
+		train_labels = dataset:loadLabel(start_,end_)
+		train_images = dataset:loadImages(start_,end_,stringImage2table)
+		nn:train(train_images[j],output[train_labels[j]])
+	end
+	nn:serialize('save/save_nn_'.. i .. '.lua')
+	print("chunck " .. i )
 end
